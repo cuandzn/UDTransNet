@@ -14,12 +14,12 @@ kfold = 5
 cosineLR = True
 n_channels = 3
 n_labels = 4
-epochs = 500
+epochs = 100
 img_size = 224
 img_size2 = 224
 print_frequency = 1
 save_frequency = 5000
-vis_frequency = 5000
+vis_frequency = 1
 
 task_name = 'GlaS'
 #task_name = 'ISIC18'
@@ -55,7 +55,7 @@ if task_name is "ISIC18":
     if model_name is "R34_UNet":
         test_session = "Test_session_"
     if model_name is "UDTransNet":
-        test_session = "Test_session_08.11_09h01"
+        test_session = "Test_session_08.13_11h20"
 
 elif task_name is "GlaS":
     if model_name is "UNet":
@@ -63,7 +63,7 @@ elif task_name is "GlaS":
     if model_name is "R34_UNet":
         test_session = "Test_session_"
     if model_name is "UDTransNet":
-        test_session = "Test_session_08.11_09h01"
+        test_session = "Test_session_08.13_03h58"
 
 if task_name is "Synapse":
     if model_name is "UNet":
@@ -72,7 +72,6 @@ if task_name is "Synapse":
         test_session = "Test_session_"
     if model_name is "UDTransNet":
         test_session = "Test_session_03.20_17h02"
-
 
 if task_name == 'Synapse':
     train_dataset = './datasets/rgb/train'

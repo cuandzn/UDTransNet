@@ -59,7 +59,7 @@ def worker_init_fn(worker_id):
 #=================================================================================
 ##################################################################################
 def main_loop(train_loader,val_loader, batch_size=config.batch_size, model_type='', fold=0, tensorboard=True, kfold=0):
-
+    print(batch_size)
     lr = config.learning_rate
     logger.info(model_type)
     if model_type == 'UNet':

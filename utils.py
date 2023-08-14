@@ -180,16 +180,23 @@ def save_on_batch(images1, masks, pred, names, vis_path):
         mask_tmp = masks[i].cpu().detach().numpy()
         # img_tmp = images1[i].cpu().detach().numpy().reshape(224,224,3)
         # print(img_tmp.shape)
+        print("11",np.unique(pred_tmp))
         pred_tmp[pred_tmp>=0.5] = 255
         pred_tmp[pred_tmp<0.5] = 0
         # print("2",pred_tmp.shape)
+        print("22",np.unique(mask_tmp))     #[0 1 2 3]
         mask_tmp[mask_tmp>0] = 255
         mask_tmp[mask_tmp<=0] = 0
-
+        
         # img_tmp.save(vis_path+names[i][:-4]+".jpg")
         # cv2.imwrite(vis_path+names[i][:-4]+".jpg", img_tmp)
-        cv2.imwrite(vis_path+ names[i][:-4]+"_pred.jpg", pred_tmp)
-        cv2.imwrite(vis_path+names[i][:-4]+"_gt.jpg", mask_tmp)
+        cv2.imwrite(vis_path+ names[i][:-4]+"_pred.png", pred_tmp)
+        pic =cv2.imread(vis_path+ names[i][:-4]+"_pred.png")
+        print("pred_tmp",np.unique(pic))
+
+        cv2.imwrite(vis_path+names[i][:-4]+"_gt.png", mask_tmp)
+        mask=cv2.imread(vis_path+ names[i][:-4]+"_gt.png")
+        print("mask_tmp",np.unique(mask))
 
 # =======================================================================
 #      Learning Rate Scheduler: CosineAnnealingWarmRestarts

@@ -102,12 +102,14 @@ class ImageToImage2D_kfold(Dataset):
             self.input_path = os.path.join(dataset_path, 'img')
             self.output_path = os.path.join(dataset_path, 'labelcol')
         self.images_list = os.listdir(self.input_path)
+        # print("---imgdir",self.images_list)
         self.one_hot_mask = one_hot_mask
         self.task_name = task_name
         self.split = split
         # print(self.dataset_path[11:15])
         # print(len(self.images_list))
-        self.images_list = [item for item in self.images_list if item in filelists]
+        if self.split=='train':
+            self.images_list = [item for item in self.images_list if item in filelists]
         # print("img",len(self.images_list))
 
         if joint_transform:
@@ -173,9 +175,7 @@ class ImageToImage2D_kfold(Dataset):
             label_mask[red_pixels] = 1
             label_mask[yellow_pixels] = 2
             label_mask[green_pixels] = 3
-
-
-
+            # print("label_mask",label_mask.shape)
 
             image, mask = correct_dims(image, mask)
 

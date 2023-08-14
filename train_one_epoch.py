@@ -52,8 +52,10 @@ def train_one_epoch(loader, model, criterion, optimizer, writer, epoch, lr_sched
         # ====================================================
         #             Compute loss
         # ====================================================
+        #print("---",images.size())
         preds = model(images)
         if config.n_labels>1:
+            # print("aa",config.n_labels,masks[0],preds.shape)
             out_loss = criterion(preds, masks.long(), softmax=True)
         else:
             out_loss = criterion(preds, masks.float())
