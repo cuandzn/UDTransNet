@@ -150,7 +150,7 @@ class Up_Block(nn.Module):
 
 class UDTransNet(nn.Module):
 
-    def __init__(self, config, n_channels=3, n_classes=1,img_size=224):
+    def __init__(self, config, n_channels=3, n_classes=3,img_size=224):
         super().__init__()
         self.n_classes = n_classes
         resnet = models.resnet34(pretrained=True)

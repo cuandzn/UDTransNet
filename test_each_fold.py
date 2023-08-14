@@ -100,7 +100,7 @@ def test_each_fold(val_filelists, model, test_num):
 
 if __name__ == '__main__':
     ## PARAMS
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2"
     ensemble_models=[]
     test_session = config.test_session
     dice_pred = []
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     for fold, (train_index, val_index) in enumerate(kf.split(filelists)):
 
         model_type = config.model_name
-        model_path = "./ISIC18_kfold/"+model_type+"/"+test_session+"/models/fold_"+str(fold+1)+"/best_model-"+model_type+".pth.tar"
+        model_path = "./GlaS_kfold/"+model_type+"/"+test_session+"/models/fold_"+str(fold+1)+"/best_model-"+model_type+".pth.tar"
 
         print(model_type)
         save_path    = config.task_name +'/'+ model_type +'/' + test_session + '/'
@@ -143,7 +143,7 @@ if __name__ == '__main__':
         model = model.cuda()
         if torch.cuda.device_count() > 1:
             print ("Let's use {0} GPUs!".format(torch.cuda.device_count()))
-            model = nn.DataParallel(model, device_ids=[0,1,2,3])
+            model = nn.DataParallel(model, device_ids=[0,1,2])
 
         model.load_state_dict(checkpoint['state_dict'])
         model.eval()

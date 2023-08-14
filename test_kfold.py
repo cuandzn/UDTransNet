@@ -33,12 +33,12 @@ def vis_save_synapse(input_img, pred, mask, save_path):
         # input_img = input_img * 255
         # input_img=input_img.astype(np.uint8)
         # input_img = cv2.cvtColor(input_img,cv2.COLOR_GRAY2BGR)
-        input_img = input_img.convert('RGB')
+        input_img = input_img.convert('BGR')
         if pred is not None:
             pred = cv2.cvtColor(pred,cv2.COLOR_GRAY2BGR)
-            input_img = np.where(pred==1, np.full_like(input_img, blue  ), input_img)
-            input_img = np.where(pred==2, np.full_like(input_img, green ), input_img)
-            input_img = np.where(pred==3, np.full_like(input_img, red   ), input_img)
+            input_img = np.where(pred==1, np.full_like(input_img, red  ), input_img)
+            input_img = np.where(pred==2, np.full_like(input_img, yellow ), input_img)
+            input_img = np.where(pred==3, np.full_like(input_img, green   ), input_img)
             input_img = np.where(pred==4, np.full_like(input_img, cyan  ), input_img)
             input_img = np.where(pred==5, np.full_like(input_img, pink  ), input_img)
             input_img = np.where(pred==6, np.full_like(input_img, yellow), input_img)
@@ -174,13 +174,13 @@ def test_Synapse(ensemble_models, input_img, labs, vis_save_path):
 
 if __name__ == '__main__':
     ## PARAMS
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2"
     ensemble_models=[]
     test_session = config.test_session
 
     for i in range(0,5):
         if config.task_name is "GlaS":
-            test_num = 80
+            test_num = 253
             model_type = config.model_name
             model_path = "./GlaS_kfold/"+model_type+"/"+test_session+"/models/fold_"+str(i+1)+"/best_model-"+model_type+".pth.tar"
 
@@ -216,7 +216,7 @@ if __name__ == '__main__':
         model = model.cuda()
         if torch.cuda.device_count() > 1:
             print ("Let's use {0} GPUs!".format(torch.cuda.device_count()))
-            model = nn.DataParallel(model, device_ids=[0,1,2,3])
+            model = nn.DataParallel(model, device_ids=[0,1,2])
 
         model.load_state_dict(checkpoint['state_dict'])
         print('Model loaded !')

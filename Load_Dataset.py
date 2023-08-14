@@ -136,7 +136,7 @@ class ImageToImage2D_kfold(Dataset):
         # read mask image
         if self.task_name == "ISIC" or self.task_name == "ISIC18":
             image = cv2.imread(os.path.join(self.input_path, image_filename))
-            mask = cv2.imread(os.path.join(self.output_path, image_filename[: -4] + "_segmentation.png"),0)
+            mask = cv2.imread(os.path.join(self.output_path, image_filename[: -3] + "png"))
         elif self.task_name == "DR_MA":
             image = cv2.imread(os.path.join(self.input_path, image_filename))
             mask = cv2.imread(os.path.join(self.output_path, image_filename[: -3] + "tif"),0)
@@ -153,7 +153,7 @@ class ImageToImage2D_kfold(Dataset):
                 # print(image.shape)
         else:
             image = cv2.imread(os.path.join(self.input_path, image_filename))
-            mask = cv2.imread(os.path.join(self.output_path, image_filename[: -3] + "png"),0)
+            mask = cv2.imread(os.path.join(self.output_path, image_filename[: -3] + "png"))
 
         if self.task_name == "Synapse":
             if self.split=='train':
@@ -164,11 +164,22 @@ class ImageToImage2D_kfold(Dataset):
         else:
             image = cv2.resize(image,(self.image_size,self.image_size))
             mask = cv2.resize(mask,(self.image_size,self.image_size))
-            mask[mask<=0] = 0
-            mask[mask>0] = 1
+            label_mask = np.zeros(mask.shape[:2], dtype=np.uint8)
+
+            # 提取红色、黄色、绿色区域并为其分配类别编号
+            red_pixels = (mask[:, :, 2] == 128) & (mask[:, :, 1] == 0) & (mask[:, :, 0] == 0)
+            yellow_pixels = (mask[:, :, 2] == 128) & (mask[:, :, 1] == 128) & (mask[:, :, 0] == 0)
+            green_pixels = (mask[:, :, 2] == 0) & (mask[:, :, 1] == 128) & (mask[:, :, 0] == 0)
+            label_mask[red_pixels] = 1
+            label_mask[yellow_pixels] = 2
+            label_mask[green_pixels] = 3
+
+
+
+
             image, mask = correct_dims(image, mask)
 
-        sample = {'image': image, 'label': mask}
+        sample = {'image': image, 'label': label_mask}
 
         if self.joint_transform:
             sample = self.joint_transform(sample)
