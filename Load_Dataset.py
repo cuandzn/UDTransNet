@@ -89,7 +89,7 @@ class ImageToImage2D_kfold(Dataset):
     def __init__(self, dataset_path: str,
                  joint_transform: Callable = None,
                  one_hot_mask: int = False,
-                 image_size: int =224,
+                 image_size: int =512,
                  filelists = None,
                  task_name = None,
                  split = 'train') -> None:
@@ -155,7 +155,9 @@ class ImageToImage2D_kfold(Dataset):
                 # print(image.shape)
         else:
             image = cv2.imread(os.path.join(self.input_path, image_filename))
-            mask = cv2.imread(os.path.join(self.output_path, image_filename[: -3] + "png"))
+            # print(os.path.join(self.output_path, image_filename[: -4]))
+            mask = cv2.imread(os.path.join(self.output_path, image_filename[: -4] + "_label.png"))
+            # mask = cv2.imread(os.path.join(self.output_path, image_filename[: -4] + ".png"))
 
         if self.task_name == "Synapse":
             if self.split=='train':

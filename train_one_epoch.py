@@ -105,7 +105,7 @@ def train_one_epoch(loader, model, criterion, optimizer, writer, epoch, lr_sched
         if config.tensorboard:
             step = epoch * len(loader) + i
             writer.add_scalar(logging_mode + '_dice', train_dice, step)
-
+            writer.add_scalar(logging_mode + '_loss', out_loss, step)
         torch.cuda.empty_cache()
 
     if lr_scheduler is not None:

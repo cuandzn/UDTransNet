@@ -79,7 +79,7 @@ def main_loop(train_loader,val_loader, batch_size=config.batch_size, model_type=
     model = model.cuda()
     if torch.cuda.device_count() > 1:
         print ("Let's use {0} GPUs!".format(torch.cuda.device_count()))
-        model = nn.DataParallel(model, device_ids=[0,1,2])
+        model = nn.DataParallel(model, device_ids=[0,1])
 
     if config.n_labels == 1:
         criterion = BinaryDiceBCE(dice_weight=1,BCE_weight=1)

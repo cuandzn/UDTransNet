@@ -4,7 +4,7 @@ import time
 ## PARAMETERS OF THE MODEL
 save_model = True
 tensorboard = True
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1"
 use_cuda = torch.cuda.is_available()
 
 seed = 666
@@ -15,19 +15,19 @@ cosineLR = True
 n_channels = 3
 n_labels = 4
 epochs = 100
-img_size = 224
-img_size2 = 224
+img_size = 512
+img_size2 = 512
 print_frequency = 1
 save_frequency = 5000
-vis_frequency = 1
+vis_frequency = 10
 
 task_name = 'GlaS'
-#task_name = 'ISIC18'
-#task_name = 'Synapse'
+# task_name = 'ISIC18'
+# task_name = 'Synapse'
 
 if task_name is 'GlaS':
     learning_rate = 1e-3
-    batch_size = 15
+    batch_size = 6
     early_stopping_patience = 50
     print_frequency = 30
 elif task_name is 'ISIC18':
@@ -55,7 +55,7 @@ if task_name is "ISIC18":
     if model_name is "R34_UNet":
         test_session = "Test_session_"
     if model_name is "UDTransNet":
-        test_session = "Test_session_08.13_11h20"
+        test_session = "Test_session_"
 
 elif task_name is "GlaS":
     if model_name is "UNet":
@@ -63,7 +63,7 @@ elif task_name is "GlaS":
     if model_name is "R34_UNet":
         test_session = "Test_session_"
     if model_name is "UDTransNet":
-        test_session = "Test_session_08.13_03h58"
+        test_session = "Test_session_"
 
 if task_name is "Synapse":
     if model_name is "UNet":
@@ -71,14 +71,15 @@ if task_name is "Synapse":
     if model_name is "R34_UNet":
         test_session = "Test_session_"
     if model_name is "UDTransNet":
-        test_session = "Test_session_03.20_17h02"
+        test_session = "Test_session_"
 
 if task_name == 'Synapse':
-    train_dataset = './datasets/rgb/train'
+    train_dataset = './datasets/Synapse/train_npz/'
     test_dataset = './datasets/Synapse/test_vol_h5/'
 else:
-    train_dataset = './datasets/rgb/train/'
-    test_dataset = './datasets/rgb/test/'
+    train_dataset = '/root/data/mydata/train/'
+    # train_dataset = './datasets/rgb/train/'
+    test_dataset = '/root/data/UDtransnet_dataset/testtest'
 
 session_name       = 'Test_session' + '_' + time.strftime('%m.%d_%Hh%M')
 save_path          = task_name +'_kfold/'+ model_name +'/' + session_name + '/'

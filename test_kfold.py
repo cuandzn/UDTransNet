@@ -50,11 +50,11 @@ def vis_save_synapse(input_img, pred, mask, save_path):
             # mask = mask.convert('RGB')           
             # mask = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
             # print("show2",input_img.size,mask.shape)
-            print(np.unique(mask))
+            # print(np.unique(mask))
             
-            input_img = np.where(mask==1, np.full_like(input_img, blue  ), input_img)
-            input_img = np.where(mask==2, np.full_like(input_img, green ), input_img)
-            input_img = np.where(mask==3, np.full_like(input_img, red   ), input_img)
+            input_img = np.where(mask==1, np.full_like(input_img, red  ), input_img)
+            input_img = np.where(mask==2, np.full_like(input_img, yellow ), input_img)
+            input_img = np.where(mask==3, np.full_like(input_img, green   ), input_img)
             input_img = np.where(mask==4, np.full_like(input_img, cyan  ), input_img)
             input_img = np.where(mask==5, np.full_like(input_img, pink  ), input_img)
             input_img = np.where(mask==6, np.full_like(input_img, yellow), input_img)
@@ -134,14 +134,14 @@ def vis_and_save_heatmap(ensemble_models, input_img, img_RGB, labs,lab_img, vis_
 def test_Synapse(ensemble_models, input_img, labs, vis_save_path):
     # print("----",input_img.size())  # [1,3,224,224]
     # print(labs.size())    # [1,224,224]
-    empty = torch.empty(1,3,224,224)
+    empty = torch.empty(1,3,512,512)
     empty[0][0]=labs[0]
     empty[0][1]=labs[0]
     empty[0][2]=labs[0]
-    print("真实标签1",np.unique(labs))
+    # print("真实标签1",np.unique(labs))
     # input_img = input_img.permute((1,0,2,3))
     labs = empty
-    print("真实标签11",np.unique(labs[0][0]))
+    # print("真实标签11",np.unique(labs[0][0]))
     # labs = labs.permute((1,0,2,3))  # [3,1,224,224]
     dice_pred_all = np.zeros(maxi)
     iou_pred_all = np.zeros(maxi)
@@ -155,22 +155,22 @@ def test_Synapse(ensemble_models, input_img, labs, vis_save_path):
         # print("input_img[idx] ",input_img[idx].size())
         input_512, lab_512 = torchvision.transforms.functional.to_pil_image(input_img[idx]), torchvision.transforms.functional.to_pil_image(labs[idx])
         lab_512_show = torchvision.transforms.functional.to_pil_image(labs[idx].to(torch.uint8))
-        print("真实标签2",np.unique(labs[idx]))
-        print("真实标签22",np.unique(lab_512_show))
+        # print("真实标签2",np.unique(labs[idx]))
+        # print("真实标签22",np.unique(lab_512_show))
         # print("\n input_512 ",input_512.size,input_512.mode)  # PIL图像 [224,224] RGB模式
         # print("\n lab_512 ",lab_512.size,lab_512.mode)    # 同上
         x, y = input_512.size
         # input_vis = zoom(input_512, (224 / x, 224 / y), order=3)  # why not 3?
         # label = zoom(lab_512, (224 / x, 224 / y), order=0)
         input_vis = input_512
-        input_vis = input_vis.resize((224, 224))
+        input_vis = input_vis.resize((512, 512))
         label = lab_512
-        label = label.resize((224, 224))
+        label = label.resize((512, 512))
         input = torchvision.transforms.functional.to_tensor(input_vis).unsqueeze(0)     # 增加一维
         # print("input ",input.size())    # tensor [1,3,224,224] 
         lab = np.array(label, np.uint8)
         lab_512_show = np.array(lab_512_show, np.uint8)
-        print("真实标签3",np.unique(lab_512_show))
+        # print("真实标签3",np.unique(lab_512_show))
         # print("\n lab_512 ",lab_512.shape)    # [224，224，3] numpy形式
         for model_ in ensemble_models:
             # print(input.size())     # [1,3,224,224]
@@ -188,7 +188,7 @@ def test_Synapse(ensemble_models, input_img, labs, vis_save_path):
         # print(predict_save.shape)
         # predict_save_512 = zoom(predict_save, (512 / 224, 512 / 224), order=0)
         vis_save_synapse(input_512, predict_save, lab_512_show, save_path=vis_save_path+'_'+str(idx)+'_'+model_type+'.png')
-        print("vis_save_path ",vis_save_path,"save_path ",save_path)
+        # print("vis_save_path ",vis_save_path,"save_path ",save_path)
         vis_save_synapse(input_512, None, lab_512_show, save_path=vis_save_path+'_'+str(idx)+'_gt.png')
         dice_pred_all += np.array(dice_pred)
         iou_pred_all += np.array(iou_pred)
@@ -208,12 +208,12 @@ if __name__ == '__main__':
     test_session = config.test_session
 
     for i in range(0,5):
-        if config.task_name is "GlaS":
-            test_num = 253
+        if config.task_name == "GlaS":
+            test_num = 17
             model_type = config.model_name
             # model_path = "./GlaS_kfold/"+model_type+"/"+test_session+"/models/fold_"+str(i+1)+"/best_model-"+model_type+".pth.tar"
-            model_path ="/data/thx/UDTransNet/GlaS_kfold/UDTransNet/Test_session_08.13_03h58/models/fold_2/best_model-UDTransNet.pth.tar"
-        elif config.task_name is "Synapse":
+            model_path ="/root/UDTransNet/GlaS_kfold/UDTransNet/Test_session_08.15_10h40/models/fold_1/best_model-UDTransNet.pth.tar"
+        elif config.task_name == "Synapse":
             test_num = 12
             model_type = config.model_name
             model_path = "./Synapse_kfold/"+model_type+"/"+test_session+"/models/fold_"+str(i+1)+"/best_model-"+model_type+".pth.tar"
@@ -243,7 +243,7 @@ if __name__ == '__main__':
         model = model.cuda()
         if torch.cuda.device_count() > 1:
             print ("Let's use {0} GPUs!".format(torch.cuda.device_count()))
-            model = nn.DataParallel(model, device_ids=[0,1,2])
+            model = nn.DataParallel(model, device_ids=[0,1])
 
         model.load_state_dict(checkpoint['state_dict'])
         print('Model loaded !')
