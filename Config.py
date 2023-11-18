@@ -19,15 +19,15 @@ img_size = 512
 img_size2 = 512
 print_frequency = 1
 save_frequency = 5000
-vis_frequency = 10
+vis_frequency = 40
 
 task_name = 'GlaS'
 # task_name = 'ISIC18'
 # task_name = 'Synapse'
 
 if task_name is 'GlaS':
-    learning_rate = 1e-3
-    batch_size = 6
+    learning_rate = 0.0001
+    batch_size = 4
     early_stopping_patience = 50
     print_frequency = 30
 elif task_name is 'ISIC18':
@@ -63,7 +63,7 @@ elif task_name is "GlaS":
     if model_name is "R34_UNet":
         test_session = "Test_session_"
     if model_name is "UDTransNet":
-        test_session = "Test_session_"
+        test_session = "Test_session_08.16_09h16"
 
 if task_name is "Synapse":
     if model_name is "UNet":
@@ -77,9 +77,8 @@ if task_name == 'Synapse':
     train_dataset = './datasets/Synapse/train_npz/'
     test_dataset = './datasets/Synapse/test_vol_h5/'
 else:
-    train_dataset = '/root/data/mydata/train/'
-    # train_dataset = './datasets/rgb/train/'
-    test_dataset = '/root/data/UDtransnet_dataset/testtest'
+    train_dataset = '/root/data/UDtransnet_dataset/train/'
+    test_dataset = '/root/data/UDtransnet_dataset/51-60/0select'
 
 session_name       = 'Test_session' + '_' + time.strftime('%m.%d_%Hh%M')
 save_path          = task_name +'_kfold/'+ model_name +'/' + session_name + '/'

@@ -28,32 +28,19 @@ def vis_save_synapse(input_img, pred, mask, save_path):
     purple = [128,0,255]  # spleen
     orange = [255,128,0]  # stomach
     if len(np.unique(mask)) > 2:
-    # if True:
-        # input_img=input_img.astype(np.uint8)
-        # input_img = input_img * 255
-        # input_img=input_img.astype(np.uint8)
-        # input_img = cv2.cvtColor(input_img,cv2.COLOR_GRAY2BGR)
-        # input_img = input_img.convert('BGR')
         if pred is not None:
-            # print("aa",pred.shape,input_img.size)
-            pred = cv2.cvtColor(pred,cv2.COLOR_GRAY2BGR)
-            # print("show1",input_img.size,pred.shape)
-            input_img = np.where(pred==1, np.full_like(input_img, red   ), input_img)
-            input_img = np.where(pred==2, np.full_like(input_img, yellow), input_img)
+            pred = cv2.cvtColor(pred,cv2.COLOR_GRAY2RGB)
+            input_img = np.where(pred==1, np.full_like(input_img, [0,0,255]   ), input_img)
+            input_img = np.where(pred==2, np.full_like(input_img, [0,255,255]), input_img)
             input_img = np.where(pred==3, np.full_like(input_img, green ), input_img)
             input_img = np.where(pred==4, np.full_like(input_img, cyan  ), input_img)
             input_img = np.where(pred==5, np.full_like(input_img, pink  ), input_img)
             input_img = np.where(pred==6, np.full_like(input_img, yellow), input_img)
             input_img = np.where(pred==7, np.full_like(input_img, purple), input_img)
             input_img = np.where(pred==8, np.full_like(input_img, orange), input_img)
-        else:
-            # mask = mask.convert('RGB')           
-            # mask = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
-            # print("show2",input_img.size,mask.shape)
-            # print(np.unique(mask))
-            
-            input_img = np.where(mask==1, np.full_like(input_img, red  ), input_img)
-            input_img = np.where(mask==2, np.full_like(input_img, yellow ), input_img)
+        else:            
+            input_img = np.where(mask==1, np.full_like(input_img, [0,0,255]  ), input_img)
+            input_img = np.where(mask==2, np.full_like(input_img, [0,255,255] ), input_img)
             input_img = np.where(mask==3, np.full_like(input_img, green   ), input_img)
             input_img = np.where(mask==4, np.full_like(input_img, cyan  ), input_img)
             input_img = np.where(mask==5, np.full_like(input_img, pink  ), input_img)
@@ -61,7 +48,7 @@ def vis_save_synapse(input_img, pred, mask, save_path):
             input_img = np.where(mask==7, np.full_like(input_img, purple), input_img)
             input_img = np.where(mask==8, np.full_like(input_img, orange), input_img)
 
-        input_img = cv2.cvtColor(input_img,cv2.COLOR_BGR2RGB)
+        #input_img = cv2.cvtColor(input_img,cv2.COLOR_BGR2RGB)
         cv2.imwrite(save_path, input_img)
 
 
@@ -132,70 +119,53 @@ def vis_and_save_heatmap(ensemble_models, input_img, img_RGB, labs,lab_img, vis_
     return dice_pred, iou_pred
 
 def test_Synapse(ensemble_models, input_img, labs, vis_save_path):
-    # print("----",input_img.size())  # [1,3,224,224]
-    # print(labs.size())    # [1,224,224]
+    
+    # input_img.size()   [1,3,224,224]
+    # labs.size()  [1,224,224]
     empty = torch.empty(1,3,512,512)
     empty[0][0]=labs[0]
     empty[0][1]=labs[0]
     empty[0][2]=labs[0]
-    # print("真实标签1",np.unique(labs))
-    # input_img = input_img.permute((1,0,2,3))
+    label_casses = labs.squeeze().cpu().numpy()
     labs = empty
-    # print("真实标签11",np.unique(labs[0][0]))
-    # labs = labs.permute((1,0,2,3))  # [3,1,224,224]
     dice_pred_all = np.zeros(maxi)
     iou_pred_all = np.zeros(maxi)
-    dice_class_all = np.zeros((maxi,8))
+    dice_class_all = np.zeros((maxi,3))
     num = input_img.size(0)
-    # print("\n---input_img ",input_img.size(),input_img.size(0))
     for idx in range(num):
         res_vis = []
         dice_pred, iou_pred, dice_class = [],[],[]
-        # [3,224,224]
-        # print("input_img[idx] ",input_img[idx].size())
-        input_512, lab_512 = torchvision.transforms.functional.to_pil_image(input_img[idx]), torchvision.transforms.functional.to_pil_image(labs[idx])
+        input_512, lab_512 = torchvision.transforms.functional.to_pil_image(input_img[idx]), torchvision.transforms.functional.to_pil_image(labs[idx])  # PIL图像 [224,224] RGB模式
         lab_512_show = torchvision.transforms.functional.to_pil_image(labs[idx].to(torch.uint8))
-        # print("真实标签2",np.unique(labs[idx]))
-        # print("真实标签22",np.unique(lab_512_show))
-        # print("\n input_512 ",input_512.size,input_512.mode)  # PIL图像 [224,224] RGB模式
-        # print("\n lab_512 ",lab_512.size,lab_512.mode)    # 同上
         x, y = input_512.size
         # input_vis = zoom(input_512, (224 / x, 224 / y), order=3)  # why not 3?
         # label = zoom(lab_512, (224 / x, 224 / y), order=0)
         input_vis = input_512
         input_vis = input_vis.resize((512, 512))
-        label = lab_512
+        label = lab_512     # # [224，224，3] numpy形式
         label = label.resize((512, 512))
-        input = torchvision.transforms.functional.to_tensor(input_vis).unsqueeze(0)     # 增加一维
-        # print("input ",input.size())    # tensor [1,3,224,224] 
+        input = torchvision.transforms.functional.to_tensor(input_vis).unsqueeze(0)     # 增加一维 tensor [1,3,224,224]
         lab = np.array(label, np.uint8)
         lab_512_show = np.array(lab_512_show, np.uint8)
-        # print("真实标签3",np.unique(lab_512_show))
-        # print("\n lab_512 ",lab_512.shape)    # [224，224，3] numpy形式
         for model_ in ensemble_models:
-            # print(input.size())     # [1,3,224,224]
             output = model_(input.cuda())
             predict_save = torch.argmax(torch.softmax(output, dim=1), dim=1).squeeze(0)
             predict_save = predict_save.cpu().data.numpy()
             res_vis.append(output)
-            dice_pred_tmp, iou_tmp, dice_class_tmp = show_image_with_dice(predict_save, lab, save_path=None)
+            dice_pred_tmp, iou_tmp, dice_class_tmp = show_image_with_dice(predict_save, label_casses, save_path=None)
             dice_pred.append(dice_pred_tmp)
             iou_pred.append(iou_tmp)
             dice_class.append(dice_class_tmp)
         res_vis = torch.cat(res_vis,dim=0)
-        # print(res_vis.size())
         predict_save = torch.argmax(torch.softmax(res_vis.mean(0), dim=0), dim=0).cpu().data.numpy().astype(np.uint8)
-        # print(predict_save.shape)
-        # predict_save_512 = zoom(predict_save, (512 / 224, 512 / 224), order=0)
         vis_save_synapse(input_512, predict_save, lab_512_show, save_path=vis_save_path+'_'+str(idx)+'_'+model_type+'.png')
-        # print("vis_save_path ",vis_save_path,"save_path ",save_path)
         vis_save_synapse(input_512, None, lab_512_show, save_path=vis_save_path+'_'+str(idx)+'_gt.png')
         dice_pred_all += np.array(dice_pred)
         iou_pred_all += np.array(iou_pred)
-        #dice_class_all += np.array(dice_class)
+        dice_class_all += np.array(dice_class)
     dice_pred_all /= num
     iou_pred_all /= num
-    #dice_class_all /= num
+    dice_class_all /= num
 
     return dice_pred_all, iou_pred_all, dice_class_all
 
@@ -203,16 +173,15 @@ def test_Synapse(ensemble_models, input_img, labs, vis_save_path):
 
 if __name__ == '__main__':
     ## PARAMS
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1"
     ensemble_models=[]
     test_session = config.test_session
-
+    att_vis_path = ''
     for i in range(0,5):
         if config.task_name == "GlaS":
             test_num = 17
             model_type = config.model_name
-            # model_path = "./GlaS_kfold/"+model_type+"/"+test_session+"/models/fold_"+str(i+1)+"/best_model-"+model_type+".pth.tar"
-            model_path ="/root/UDTransNet/GlaS_kfold/UDTransNet/Test_session_08.15_10h40/models/fold_1/best_model-UDTransNet.pth.tar"
+            model_path = "./GlaS_kfold/"+model_type+"/"+test_session+"/models/fold_"+str(i+1)+"/best_model-"+model_type+".pth.tar"
         elif config.task_name == "Synapse":
             test_num = 12
             model_type = config.model_name
@@ -222,7 +191,6 @@ if __name__ == '__main__':
         att_vis_path = "./" + config.task_name + '_visualize_test/'
         if not os.path.exists(att_vis_path):
             os.makedirs(att_vis_path)
-
         maxi = 5
         if not os.path.exists(model_path):
             maxi = i
@@ -265,7 +233,7 @@ if __name__ == '__main__':
 
     dice_pred = np.zeros((maxi))
     iou_pred = np.zeros((maxi))
-    dice_class = np.zeros((maxi,8))
+    dice_class = np.zeros((maxi,3))
     dice_ens = 0.0
     dice_5folds = []
     iou_5folds = []
@@ -274,6 +242,7 @@ if __name__ == '__main__':
         for i, (sampled_batch, names) in enumerate(test_loader, 1):
             test_data, test_label = sampled_batch['image'], sampled_batch['label']
             if config.n_labels ==1:
+                print("label=1")
                 arr=test_data.numpy()
                 arr = arr.astype(np.float32())
                 lab=test_label.data.numpy()
@@ -303,7 +272,6 @@ if __name__ == '__main__':
                                                               att_vis_path+str(i))
 
             else:
-                print(att_vis_path+str(i))
                 dice_pred_t,iou_pred_t,dice_class_t = test_Synapse(ensemble_models, test_data, test_label, att_vis_path+str(i))
 
             dice_pred_t = np.array(dice_pred_t)
